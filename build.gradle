@@ -1,0 +1,56 @@
+buildscript {
+    repositories {
+        maven { url 'https://plugins.gradle.org/m2/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.7'
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+        classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.9.0'
+    }
+}
+
+plugins {
+    id 'java-gradle-plugin'
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    javaVersion = JavaVersion.VERSION_1_8
+    springBootVersion = project.hasProperty('springBootVersion') ? project.property(
+            'springBootVersion') : 'latest.release'
+}
+
+logger.lifecycle('springBootVersion: ' + springBootVersion)
+
+configurations.all {
+    resolutionStrategy {
+        failOnVersionConflict()
+    }
+
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.name == 'spring-boot-gradle-plugin') {
+            details.useVersion(springBootVersion)
+        }
+        if (details.requested.name == 'groovy-all') {
+            details.useVersion(GroovySystem.version)
+        }
+        if (details.requested.group == 'org.hamcrest') {
+            details.useVersion('1.3')
+        }
+    }
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+    implementation group: 'com.palantir.docker', name: 'com.palantir.docker.gradle.plugin', version: '0.25.0', ext: 'pom'
+}
+
+tasks.withType(AbstractCompile).all {
+    sourceCompatibility = javaVersion.toString()
+    targetCompatibility = javaVersion.toString()
+}

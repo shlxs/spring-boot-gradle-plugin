@@ -1,0 +1,29 @@
+# eclipse
+.classpath
+.project
+.settings
+build-eclipse/
+
+# intellij idea
+.idea
+*.iml
+*.ipr
+*.iws
+build-idea/
+
+# gradle stuff
+.gradle/
+build/
+out/
+
+# osx stuff
+.DS_Store
+
+# binary
+*.class
+target
+
+# other
+.svn
+*.log.*
+*.log
