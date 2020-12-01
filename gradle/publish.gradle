@@ -1,0 +1,55 @@
+// 插件。无需另外单独配置插件仓库地址
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+// 定义参数
+def gitUrl = 'https://github.com/shlxs/spring-boot-gradle-plugin.git'   // Git仓库的url
+def groupIdDefined = "io.shlxs"
+def artifactIdDefined = "spring-boot-gradle-plugin"
+def versionDefined = "0.1.0"
+
+// bintray平台信息配置
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+bintray {
+    user = properties.getProperty("bintray.user") // local.properties里设置
+    key = properties.getProperty("bintray.apikey") // local.properties里设置
+    publications = ['MyPublication'] // 'MyPublication'与下面的publishing闭包里的名称对应
+    publish = true // 上传后立即发布到Bintray平台
+    pkg {
+        repo = "maven"  // 必填。bintray平台仓库名，必须已经创建过。
+        name = "spring-boot-gradle-plugin"  // 必填。仓库里包package的名称，没有的话会自动创建。
+        userOrg = 'yoka'
+        licenses = ["Apache-2.0"] // 首次创建package则必须，否则选填。
+        vcsUrl = gitUrl // 首次创建package则必须，否则选填。
+        version {
+            name = "$versionDefined"
+        }
+    }
+}
+
+
+// 构件文件和POM信息配置
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            artifact("$buildDir/libs/spring-boot-gradle-plugin-0.1.0.jar")
+            groupId "$groupIdDefined"
+            artifactId "$artifactIdDefined"
+            version "$versionDefined"
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                // Iterate over the implementation dependencies (we don't want the test ones), adding a <dependency> node for each
+                configurations.implementation.allDependencies.each {
+                    // Ensure dependencies such as fileTree are not included in the pom.
+                    if (it.name != 'unspecified') {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+        }
+    }
+}

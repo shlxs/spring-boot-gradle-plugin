@@ -27,3 +27,5 @@ target
 .svn
 *.log.*
 *.log
+
+local.properties

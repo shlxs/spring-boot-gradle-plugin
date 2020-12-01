@@ -1,17 +1,6 @@
-buildscript {
-    repositories {
-        maven { url 'https://plugins.gradle.org/m2/' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.7'
-        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
-        classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.9.0'
-    }
-}
-
 plugins {
     id 'java-gradle-plugin'
+    id "com.jfrog.bintray" version "1.8.5"
 }
 
 repositories {
@@ -47,10 +36,12 @@ configurations.all {
 dependencies {
     implementation "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-    implementation group: 'com.palantir.docker', name: 'com.palantir.docker.gradle.plugin', version: '0.25.0', ext: 'pom'
+    //implementation group: 'com.palantir.docker', name: 'com.palantir.docker.gradle.plugin', version: '0.25.0', ext: 'pom'
 }
 
 tasks.withType(AbstractCompile).all {
     sourceCompatibility = javaVersion.toString()
     targetCompatibility = javaVersion.toString()
 }
+
+apply from: 'gradle/publish.gradle'
